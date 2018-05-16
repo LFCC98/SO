@@ -40,7 +40,7 @@ int contaPalavra(char* s){
 int tamPalavra(char *s, int *l){
 	int i = 0;
 	int j = *l;
-	while(s[j] != ' ' && s[j] != '\0'){
+	while(s[j] != ' ' && s[j] != '\0' && s[j] != '\n'){
 		i++;
 		j++;
 	}
