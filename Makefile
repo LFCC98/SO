@@ -1,12 +1,12 @@
 CC=gcc
-CFLAGS=-W -Wall -ansi -pedantic -g
-EXEC=programa
+CFLAGS=-W -Wall -g
+EXEC=notebook
 SRC=$(wildcard *.c)
 OBJ=$(SRC:.c=.o)
 
 all: $(EXEC)
 
-programa: $(OBJ)
+notebook: $(OBJ)
 	$(CC) -o $@ $^ 
 
 %.o: %.c

@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
+#include "notebook.h"
 
 int wrongFile(char a[]){
 	int l = strlen(a);
@@ -31,7 +32,7 @@ int main(int argc, char * const argv[]){
 		exit(-1);
 	}
 
-	
+	processa(file);
 
 	return 0;
 }
