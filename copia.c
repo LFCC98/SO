@@ -52,9 +52,10 @@ char* retiraParte(char* s, int *l){
 	while(s[j] == ' ' && s[j] != '\0')
 		j++;
 	*l = j;
+
 	int i = 0;
 	int tam = tamPalavra(s, l);
-	char *c = malloc(tam + 1);
+	char*c = malloc(tam + 1);
 
 	while(i < tam){
 		c[i] = s[i + *l];
@@ -65,8 +66,8 @@ char* retiraParte(char* s, int *l){
 }
 
 char** parteComando(char* s){
-	int k = contaPalavra(s), pal = 0, a = 0, tam;
-	char **c;
+	int k = contaPalavra(s), pal = 0, a = 0;
+	char **c = malloc(sizeof(char*) * k);
 
 	while(pal < k){
 		c[pal] = retiraParte(s, &a);
