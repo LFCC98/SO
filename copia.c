@@ -67,11 +67,13 @@ char* retiraParte(char* s, int *l){
 
 char** parteComando(char* s){
 	int k = contaPalavra(s), pal = 0, a = 0;
-	char **c = malloc(sizeof(char*) * k);
+	char **c = malloc(sizeof(char*) * (k + 1));
 
 	while(pal < k){
 		c[pal] = retiraParte(s, &a);
 		pal++;
 	}
+	c[k] = NULL;
+
 	return c;
 }
