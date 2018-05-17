@@ -7,16 +7,31 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include "notebook.h"
+#include "copia.h"
 
-int numespacos(char* line){
+/*struct llista{
+	char* linha;
+	struct llista next;
+};*/
+
+int numEspacos(char* line){
 
 	int conta = 0;
-	int i;
-	for(i = 0; *(line + i) != '\n'; i++){
+	for(int i = 0; *(line + i) != '\n'; i++){
 		if(*(line + i) == ' ')
 			conta++;
 	}
 	return conta;
+}
+
+int numLinhas(char* buf){
+
+	int conta = 0;
+	for(int i = 0; *(buf + i) != '\0'; i++){
+		if(*(buf + i) == '\n')
+			conta++;
+	}
+	return conta + 1;
 }
 
 int comentario(char *line){
@@ -41,40 +56,24 @@ void colocaPalavras(char * word[], char * buf){
 	}
 }
 
-void processalinha(int tempfile, char * line, int n){
+void processalinha(int file, char * line, int n){
 
 	char * m = ">>>\n";
 	char * x = "<<<\n";
-	int espacos = numespacos(line) + 2;
-	char * words[espacos];
+	char **palavras;
 
-	colocaPalavras(words, line);
-	words[espacos - 1] = NULL;
-
-	if(comentario(line)){
-		write(tempfile, line, n);
-	}
-	else{
-		write(tempfile, m, 4);
+	write(file, line, n);
+	if(!comentario(line)){
+		write(file, m, 4);
+		palavras = parteComando(line);
 		if(!fork()){
-			dup2(1, tempfile);
-			execvp(words[1], &words[1]);
+			dup2(file, 1);
+			close(file);
+			execvp(palavras[1], &palavras[1]);
 		}
 		wait(NULL);
-		write(tempfile, x, 4);
+		write(file, x, 4);
 	}
-}
-
-ssize_t readFileLine(int f, char * buf){
-
-	int x, y = 0;
-	while(y < TAM && (x = read(f, &buf[y], 1)) > 0){
-		y += x;
-		if(buf[y - 1] == '\n')
-			break;
-	}
-
-	return y;
 }
 
 void processa(int file){
@@ -82,9 +81,25 @@ void processa(int file){
 	int tam = lseek(file, 0, SEEK_END) + 1;
 	lseek(file, 0, SEEK_SET);
 
-	char *buf = (char*) malloc(tam);
+	char *buf = (char*)malloc(tam);
+	read(file, buf, tam);
 
-	int n;
-	n = read(file, buf, tam);
-	write(1, buf, n);
+	lseek(file, 0, SEEK_SET);
+
+	int n = numLinhas(buf);
+	char *linhas[n];
+	int tamlinha[n];
+	int l = 0;
+	int dif = 0;
+
+	for(int i = 0; i < n; i++){
+		char *c = copiaLinha(buf, &l);
+		tamlinha[i] = l - dif;
+		linhas[i] = c;
+		dif = l;
+	}
+
+	for(int i = 0; i < n; i++){
+		processalinha(file, linhas[i], tamlinha[i]);
+	}
 }
