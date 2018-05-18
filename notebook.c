@@ -76,6 +76,18 @@ void processalinha(int file, char * line, int n){
 	}
 }
 
+int avancaLinhas(char* linhas[], int i){
+	int r = (strcmp(">>>\n", linhas[i]));
+	while(!r){
+		if(!strncmp("<<<", linhas[i], 3)){
+			r = 1;
+			i++;
+		}
+		else i++;
+	}
+	return i;
+}
+
 void processa(int file){
 
 	int tam = lseek(file, 0, SEEK_END) + 1;
@@ -98,8 +110,10 @@ void processa(int file){
 		linhas[i] = c;
 		dif = l;
 	}
-
-	for(int i = 0; i < n; i++){
-		processalinha(file, linhas[i], tamlinha[i]);
+	int i;
+	for(i = 0; i < n; i++){
+		i = avancaLinhas(linhas, i);
+		if(i < n)
+			processalinha(file, linhas[i], tamlinha[i]);
 	}
 }

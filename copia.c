@@ -20,7 +20,7 @@ char* copiaLinha(char* buf, int *l){
 		j++;
 	}
 	*l += j;
-	
+
 	return c;
 }
 
