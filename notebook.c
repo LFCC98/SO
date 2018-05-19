@@ -56,12 +56,14 @@ void colocaPalavras(char * word[], char * buf){
 	}
 }
 
-void processalinha(int file, char * line, int n){
+int processalinha(int file, char * line, int n){
 
 	char * m = ">>>\n";
 	char * x = "<<<\n";
 	char **palavras;
-
+	int status;
+	
+	line[n - 1] = '\n';
 	write(file, line, n);
 	if(!comentario(line)){
 		write(file, m, 4);
@@ -71,11 +73,13 @@ void processalinha(int file, char * line, int n){
 			close(file);
 			execvp(palavras[1], &palavras[1]);
 		}
-		wait(NULL);
+		//if(!WIFEXITED(NULL))
+		//	return 0;
+		wait(&status);
 		write(file, x, 4);
 	}
+	return 1;
 }
-
 int avancaLinhas(char* linhas[], int i){
 	int r = (strcmp(">>>\n", linhas[i]));
 	while(!r){
@@ -98,7 +102,7 @@ void processa(int file){
 
 	lseek(file, 0, SEEK_SET);
 
-	int n = numLinhas(buf);
+	int n = numLinhas(buf), r = 1;
 	char *linhas[n];
 	int tamlinha[n];
 	int l = 0;
@@ -110,10 +114,15 @@ void processa(int file){
 		linhas[i] = c;
 		dif = l;
 	}
+	//linhas[n - 1][tamlinha[n - 1]] = '\n';
 	int i;
-	for(i = 0; i < n; i++){
+	for(i = 0; i < n && r != 0; i++){
 		i = avancaLinhas(linhas, i);
 		if(i < n)
-			processalinha(file, linhas[i], tamlinha[i]);
+			r = processalinha(file, linhas[i], tamlinha[i]);
+	}
+	if(i < n){
+		lseek(file, 0, SEEK_SET);
+		write(file, buf, tam);
 	}
 }
