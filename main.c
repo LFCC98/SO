@@ -32,7 +32,7 @@ int main(int argc, char * const argv[]){
 		exit(-1);
 	}
 
-	processa(file);
+	processa(file, argv[1]);
 
 	return 0;
 }

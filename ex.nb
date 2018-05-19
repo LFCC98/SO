@@ -1,39 +1,30 @@
 Marega
-$ ls -l
+$ ls
 >>>
-total 80
--rw-rw-r-- 1 pedrocapa pedrocapa  1191 Mai 18 12:44 copia.c
--rw-rw-r-- 1 pedrocapa pedrocapa   166 Mai 16 21:50 copia.h
--rw-rw-r-- 1 pedrocapa pedrocapa  5504 Mai 19 12:14 copia.o
--rw-rw-r-- 1 pedrocapa pedrocapa    25 Mai 19 12:15 ex.nb
--rw-rw-r-- 1 pedrocapa pedrocapa   589 Mai 18 12:37 main.c
--rw-rw-r-- 1 pedrocapa pedrocapa  4576 Mai 19 12:14 main.o
--rw-rw-r-- 1 pedrocapa pedrocapa   201 Mai 16 17:43 Makefile
--rwxrwxr-x 1 pedrocapa pedrocapa 18096 Mai 19 12:14 notebook
--rw-rw-r-- 1 pedrocapa pedrocapa  2193 Mai 19 12:14 notebook.c
--rw-rw-r-- 1 pedrocapa pedrocapa    79 Mai 18 12:26 notebook.h
--rw-rw-r-- 1 pedrocapa pedrocapa  8640 Mai 19 12:14 notebook.o
--rw-rw-r-- 1 pedrocapa pedrocapa    37 Mai 15 15:37 README.md
+copia.c
+copia.h
+copia.o
+ex.nb
+main.c
+main.o
+Makefile
+notebook
+notebook.c
+notebook.h
+notebook.o
+README.md
 <<<
 Sagan
 $ ps
 >>>
   PID TTY          TIME CMD
- 4132 pts/2    00:00:00 bash
- 4423 pts/2    00:00:00 gdb
- 4431 pts/2    00:00:00 exe6
- 4753 pts/2    00:00:00 gdb
- 4761 pts/2    00:00:00 notebook
- 4915 pts/2    00:00:00 man
- 4926 pts/2    00:00:00 pager
- 4950 pts/2    00:00:00 gdb
- 5389 pts/2    00:00:00 gdb
- 5391 pts/2    00:00:00 notebook
- 5408 pts/2    00:00:00 gdb
- 5410 pts/2    00:00:00 notebook
- 5462 pts/2    00:00:00 gdb
- 5467 pts/2    00:00:00 notebook
- 5472 pts/2    00:00:00 gdb
- 5882 pts/2    00:00:00 notebook
- 5884 pts/2    00:00:00 ps
+ 5930 pts/2    00:00:00 bash
+ 6855 pts/2    00:00:01 gdb
+ 6911 pts/2    00:00:00 gdb
+ 6913 pts/2    00:00:00 notebook
+ 7006 pts/2    00:00:04 gdb
+ 7100 pts/2    00:00:00 notebook
+ 7154 pts/2    00:00:01 gdb
+ 7747 pts/2    00:00:00 notebook
+ 7749 pts/2    00:00:00 ps
 <<<

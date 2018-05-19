@@ -92,7 +92,7 @@ int avancaLinhas(char* linhas[], int i){
 	return i;
 }
 
-void processa(int file){
+void processa(int file, char * path){
 
 	int tam = lseek(file, 0, SEEK_END) + 1;
 	lseek(file, 0, SEEK_SET);
@@ -107,6 +107,8 @@ void processa(int file){
 	int tamlinha[n];
 	int l = 0;
 	int dif = 0;
+	char * end = malloc(1);
+	end = 0;
 
 	for(int i = 0; i < n; i++){
 		char *c = copiaLinha(buf, &l);
@@ -114,13 +116,22 @@ void processa(int file){
 		linhas[i] = c;
 		dif = l;
 	}
-	//linhas[n - 1][tamlinha[n - 1]] = '\n';
+
+	close(file);
+	file = open(path, O_WRONLY | O_TRUNC);
+	if(file == -1){
+		write(file, buf, tam);
+		perror("Não foi possível abir o ficheiro\n");
+		exit(-1);
+	}
+
 	int i;
 	for(i = 0; i < n && r != 0; i++){
 		i = avancaLinhas(linhas, i);
 		if(i < n)
 			r = processalinha(file, linhas[i], tamlinha[i]);
 	}
+	write(file, end, 1);
 	if(i < n){
 		lseek(file, 0, SEEK_SET);
 		write(file, buf, tam);
