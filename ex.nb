@@ -1,30 +1,4 @@
 Marega
-$ ls
->>>
-copia.c
-copia.h
-copia.o
-ex.nb
-main.c
-main.o
-Makefile
-notebook
-notebook.c
-notebook.h
-notebook.o
-README.md
-<<<
-Sagan
-$ ps
->>>
-  PID TTY          TIME CMD
- 5930 pts/2    00:00:00 bash
- 6855 pts/2    00:00:01 gdb
- 6911 pts/2    00:00:00 gdb
- 6913 pts/2    00:00:00 notebook
- 7006 pts/2    00:00:04 gdb
- 7100 pts/2    00:00:00 notebook
- 7154 pts/2    00:00:01 gdb
- 7747 pts/2    00:00:00 notebook
- 7749 pts/2    00:00:00 ps
-<<<
+$ ls -l
+ABC
+$ date

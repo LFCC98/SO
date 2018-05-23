@@ -62,6 +62,7 @@ int processalinha(int file, char * line, int n){
 	char * x = "<<<\n";
 	char **palavras;
 	int status;
+	int val;
 	
 	line[n - 1] = '\n';
 	write(file, line, n);
@@ -71,11 +72,16 @@ int processalinha(int file, char * line, int n){
 		if(!fork()){
 			dup2(file, 1);
 			close(file);
-			execvp(palavras[1], &palavras[1]);
+			status = execvp(palavras[1], &palavras[1]);
+			_exit(status);
 		}
-		//if(!WIFEXITED(NULL))
-		//	return 0;
 		wait(&status);
+		/*
+		val = WEXITSTATUS(status);
+		if(val == 0){
+			return 0;
+		}
+		*/
 		write(file, x, 4);
 	}
 	return 1;
@@ -131,9 +137,11 @@ void processa(int file, char * path){
 		if(i < n)
 			r = processalinha(file, linhas[i], tamlinha[i]);
 	}
-	write(file, end, 1);
-	if(i < n){
+	if(!r){
 		lseek(file, 0, SEEK_SET);
 		write(file, buf, tam);
+	}
+	else{
+		write(file, end, 1);
 	}
 }
