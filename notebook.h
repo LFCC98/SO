@@ -2,5 +2,4 @@
 
 void processa(int file, char* path);
 
-//typedef struct llista{
-//}*Lista;
+typedef struct llista* Lista;

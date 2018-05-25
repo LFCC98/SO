@@ -1,4 +1,26 @@
 Marega
+$ ps
+>>>
+  PID TTY          TIME CMD
+ 3579 pts/4    00:00:00 bash
+ 5611 pts/4    00:00:00 notebook
+ 5612 pts/4    00:00:00 ps
+<<<
 $ ls -l
-ABC
-$ date
+>>>
+total 92
+-rw-r--r-- 1 pedrocapa pedrocapa  8346 Mai 23 18:05 ci
+-rw-rw-r-- 1 pedrocapa pedrocapa  1191 Mai 18 12:44 copia.c
+-rw-rw-r-- 1 pedrocapa pedrocapa   166 Mai 16 21:50 copia.h
+-rw-rw-r-- 1 pedrocapa pedrocapa  5504 Mai 25 11:51 copia.o
+-rw-rw-r-- 1 pedrocapa pedrocapa    25 Mai 25 11:51 ex.nb
+-rw-rw-r-- 1 pedrocapa pedrocapa   598 Mai 19 13:00 main.c
+-rw-rw-r-- 1 pedrocapa pedrocapa  4592 Mai 25 11:51 main.o
+-rw-rw-r-- 1 pedrocapa pedrocapa   201 Mai 16 17:43 Makefile
+-rwxrwxr-x 1 pedrocapa pedrocapa 19064 Mai 25 11:51 notebook
+-rw-rw-r-- 1 pedrocapa pedrocapa  3630 Mai 25 11:50 notebook.c
+-rw-rw-r-- 1 pedrocapa pedrocapa    85 Mai 25 11:49 notebook.h
+-rw-rw-r-- 1 pedrocapa pedrocapa 11640 Mai 25 11:51 notebook.o
+-rw-rw-r-- 1 pedrocapa pedrocapa    37 Mai 15 15:37 README.md
+<<<
+Sagan

@@ -9,10 +9,12 @@
 #include "notebook.h"
 #include "copia.h"
 
-/*struct llista{
+struct llista{
+	int line;
+	int tam;
 	char* linha;
-	struct llista next;
-};*/
+	struct llista *next;
+};
 
 int numEspacos(char* line){
 
@@ -56,35 +58,76 @@ void colocaPalavras(char * word[], char * buf){
 	}
 }
 
-int processalinha(int file, char * line, int n){
+Lista deuErro(){
+	Lista lis = malloc(sizeof(struct llista));
+	lis -> linha = NULL;
+	lis -> line = -1;
+	lis -> tam = 0;
+	lis -> next = NULL;
+	return lis;
+}
 
-	char * m = ">>>\n";
-	char * x = "<<<\n";
-	char **palavras;
-	int status;
-	int val;
+Lista processaLista(Lista lis, char* buffer, int tam){
+	int i = 0;
 	
+	if(lis == NULL){
+		lis = malloc(sizeof(struct llista));
+		lis -> linha = malloc(sizeof(char) * tam + 1);
+		lis -> linha = buffer;
+		lis -> line = 0;
+		lis -> tam = tam;
+		lis -> next = NULL;
+	}
+	else{
+		Lista l = lis, ant;
+		l = lis -> next;
+		ant = lis;
+		while(l != NULL){
+			ant = l;
+			l = l -> next;
+			i++;
+		}
+		l = malloc(sizeof(struct llista));
+		l -> linha = malloc(sizeof(char) * tam + 1);
+		l -> linha = buffer;
+		l -> line = i;
+		l -> tam = tam;
+		l -> next = NULL;
+		ant -> next = l;
+	}
+	return lis;
+}
+
+Lista processalinha(char * line, int n, Lista lis){
+
+	char **palavras;
+	int status = 0;
+	int val;
+	int pid[2];
+	char* buffer = malloc(sizeof(char)* 4000);
+	
+	pipe(pid);
+
 	line[n - 1] = '\n';
-	write(file, line, n);
 	if(!comentario(line)){
-		write(file, m, 4);
 		palavras = parteComando(line);
 		if(!fork()){
-			dup2(file, 1);
-			close(file);
+			dup2(pid[1], 1);
+			close(pid[1]);
 			status = execvp(palavras[1], &palavras[1]);
-			_exit(status);
+			perror("Erro ao executar");
+			_exit(-1);
 		}
 		wait(&status);
-		/*
-		val = WEXITSTATUS(status);
-		if(val == 0){
-			return 0;
+
+		if(WEXITSTATUS(status))
+			lis = deuErro();		
+		else{
+		int tam = read(pid[0], buffer, 4000);
+		lis = processaLista(lis, buffer, tam);
 		}
-		*/
-		write(file, x, 4);
 	}
-	return 1;
+	return lis;
 }
 int avancaLinhas(char* linhas[], int i){
 	int r = (strcmp(">>>\n", linhas[i]));
@@ -98,23 +141,44 @@ int avancaLinhas(char* linhas[], int i){
 	return i;
 }
 
+void escreveFile(int file, char* linhas[], int tamlinha[], int n, Lista l){
+	int i = 0;
+	char * m = ">>>\n";
+	char * x = "<<<\n";
+	
+	while(i < n){
+		i = avancaLinhas(linhas, i);
+		write(file, linhas[i], tamlinha[i]);
+		if(!comentario(linhas[i])){
+			write(file, m, 4);
+			write(file, l -> linha, l -> tam);
+			write(file, x, 4);
+			l = l -> next;
+		}
+		i++;		
+	}
+
+}
+
 void processa(int file, char * path){
 
-	int tam = lseek(file, 0, SEEK_END) + 1;
+	int tam = lseek(file, 0, SEEK_END);
 	lseek(file, 0, SEEK_SET);
 
 	char *buf = (char*)malloc(tam);
-	read(file, buf, tam);
+	int t = read(file, buf, tam);
 
-	lseek(file, 0, SEEK_SET);
+	if(t < tam){
+		perror("Nao consegui ler o ficheiro corretamente");
+		exit(-1);
+	}
 
-	int n = numLinhas(buf), r = 1;
+	int n = numLinhas(buf);
 	char *linhas[n];
 	int tamlinha[n];
 	int l = 0;
 	int dif = 0;
-	char * end = malloc(1);
-	end = 0;
+	Lista lis = NULL;
 
 	for(int i = 0; i < n; i++){
 		char *c = copiaLinha(buf, &l);
@@ -123,25 +187,19 @@ void processa(int file, char * path){
 		dif = l;
 	}
 
-	close(file);
-	file = open(path, O_WRONLY | O_TRUNC);
-	if(file == -1){
-		write(file, buf, tam);
-		perror("Não foi possível abir o ficheiro\n");
-		exit(-1);
-	}
-
 	int i;
-	for(i = 0; i < n && r != 0; i++){
+	for(i = 0; i < n && (lis == NULL || lis -> line != -1); i++){
 		i = avancaLinhas(linhas, i);
 		if(i < n)
-			r = processalinha(file, linhas[i], tamlinha[i]);
+			lis = processalinha(linhas[i], tamlinha[i], lis);
 	}
-	if(!r){
-		lseek(file, 0, SEEK_SET);
-		write(file, buf, tam);
+	
+	if(lis != NULL && lis -> line != -1){
+		close(file);
+		file = open(path, O_WRONLY | O_TRUNC);
+		escreveFile(file, linhas, tamlinha, n, lis);
 	}
-	else{
-		write(file, end, 1);
-	}
+
+	close(file);
+
 }
