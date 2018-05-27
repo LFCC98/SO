@@ -1,12 +1,12 @@
 CC=gcc
 CFLAGS=-W -Wall -g
-EXEC=notebook
+EXEC=TP-MIEI45
 SRC=$(wildcard *.c)
 OBJ=$(SRC:.c=.o)
 
 all: $(EXEC)
 
-notebook: $(OBJ)
+TP-MIEI45: $(OBJ)
 	$(CC) -o $@ $^ 
 
 %.o: %.c
