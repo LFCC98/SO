@@ -67,9 +67,8 @@ Lista deuErro(){
 	return lis;
 }
 
-Lista processaLista(Lista lis, char* buffer, int tam){
+Lista processaLista(Lista lis, char* buffer, int tam, int n){
 	int i = 0;
-	
 	if(lis == NULL){
 		lis = malloc(sizeof(struct llista));
 		lis -> linha = malloc(sizeof(char) * tam + 1);
@@ -85,12 +84,14 @@ Lista processaLista(Lista lis, char* buffer, int tam){
 		while(l != NULL){
 			ant = l;
 			l = l -> next;
-			i++;
 		}
 		l = malloc(sizeof(struct llista));
 		l -> linha = malloc(sizeof(char) * tam + 1);
 		l -> linha = buffer;
-		l -> line = i;
+		if(!n)
+			l -> line = i;
+		else
+			l -> line = ant -> line;
 		l -> tam = tam;
 		l -> next = NULL;
 		ant -> next = l;
@@ -101,10 +102,9 @@ Lista processaLista(Lista lis, char* buffer, int tam){
 Lista processalinha(char * line, int n, Lista lis){
 
 	char **palavras;
-	int status = 0;
-	int val;
+	int status = 0, tam, r = 1, h = 0;
 	int pid[2];
-	char* buffer = malloc(sizeof(char)* 4000);
+	char * buffer = malloc(4000);
 	
 	pipe(pid);
 
@@ -121,10 +121,17 @@ Lista processalinha(char * line, int n, Lista lis){
 		wait(&status);
 
 		if(WEXITSTATUS(status))
-			lis = deuErro();		
+			lis = deuErro();
 		else{
-		int tam = read(pid[0], buffer, 4000);
-		lis = processaLista(lis, buffer, tam);
+			while(r && (tam = read(pid[0], buffer, 4000))){
+				if(tam < 4000){
+					buffer[tam - 1] = '\n';
+					buffer[tam] = '\0';
+					r = 0;
+				}
+				lis = processaLista(lis, buffer, tam, h);
+				n = 1;
+			}
 		}
 	}
 	return lis;
@@ -157,7 +164,6 @@ void escreveFile(int file, char* linhas[], int tamlinha[], int n, Lista l){
 		}
 		i++;		
 	}
-
 }
 
 void processa(int file, char * path){
