@@ -46,9 +46,10 @@ int comentario(char *line){
 }
 
 int comand_pipe(char * line){
-	if(comentario(line) || (strlen(line) >= 2 &&  *(line + 1) != '|'))
-		return 0;
-	return 1;
+	if(!comentario(line) && ((*(line + 1)) == '|' || ((*(line + 1)) >= 48  && (*(line + 1)) <= 57)) 
+	/*|| (*(line + 1) != '|') || (((*(line + 1) < 48 || (*(line + 1) > 57)) && (*(line + 1))  != '|'))*/)
+		return 1;
+	return 0;
 }
 
 void colocaPalavras(char * word[], char * buf){
@@ -77,7 +78,7 @@ void copiaAnt(char* buffer, Lista lis, int t){
 	}
 }
 
-char* pegaAnt(Lista lis){
+char* pegaAnt(Lista lis, int indice){
 	char * buffer;
 	int t = 0, n;
 	if(lis == NULL || lis -> next == NULL)
@@ -86,14 +87,22 @@ char* pegaAnt(Lista lis){
 		Lista aux = lis;
 		while(aux -> next != NULL)
 			aux = aux -> next;
-		n = aux -> num;
+		n = (aux -> num) - indice;
+		if(n < 0)
+			return NULL;
 		Lista anterior = aux -> ant;
+		if(aux -> num != n)
+			while(anterior -> ant != NULL && anterior -> num != n){
+				aux = anterior;
+				anterior = anterior -> ant;
+			}
 		t = strlen(aux -> linha);
-		while(anterior -> ant != NULL && anterior -> num == n){
+		while(anterior != NULL && anterior -> num == n){
 			t += strlen(anterior -> linha);
-			aux -> ant = anterior;
+			aux = anterior;
 			anterior = anterior -> ant;
 		}
+
 		buffer = malloc(t);
 		copiaAnt(buffer, aux, t);
 	}
@@ -111,12 +120,12 @@ Lista deuErro(){
 }
 
 Lista processaLista(Lista lis, char* buffer, int tam, int n){
-	int i = 0;
+	int i = 1;
 	if(lis == NULL){
 		lis = malloc(sizeof(struct llista));
 		lis -> linha = malloc(sizeof(char) * tam + 1);
 		lis -> linha = buffer;
-		lis -> num = 0;
+		lis -> num = i;
 		lis -> tam = tam;
 		lis -> next = NULL;
 		lis -> ant = NULL;
@@ -125,14 +134,16 @@ Lista processaLista(Lista lis, char* buffer, int tam, int n){
 		Lista l = lis, ant;
 		l = lis -> next;
 		ant = lis;
+		i++;
 		while(l != NULL){
+			i++;
 			ant = l;
 			l = l -> next;
 		}
 		l = malloc(sizeof(struct llista));
 		l -> linha = malloc(sizeof(char) * tam + 1);
 		l -> linha = buffer;
-		if(!n)
+		if(n == 0)
 			l -> num = i;
 		else
 			l -> num = ant -> num;
@@ -147,7 +158,7 @@ Lista processaLista(Lista lis, char* buffer, int tam, int n){
 Lista processalinha(char * line, int n, Lista lis){
 
 	char **palavras;
-	int status = 0, tam, r = 1;
+	int status = 0, tam, r = 1, indice, h = 0;
 	int pid[2], pff[2];
 	char *ant, *buffer = malloc(MAXTAM);
 	
@@ -157,7 +168,12 @@ Lista processalinha(char * line, int n, Lista lis){
 	line[n - 1] = '\n';
 	if(comand_pipe(line)){
 		palavras = parteComando(line);
-		ant = pegaAnt(lis);
+		indice = indiceAnt(line);
+		ant = pegaAnt(lis, indice);
+		if(ant == NULL){
+			lis = deuErro();
+			return lis;
+		}
 		write(pff[1], ant, strlen(ant) + 1);
 		if(!fork()){
 			dup2(pff[0], 0);
@@ -183,8 +199,8 @@ Lista processalinha(char * line, int n, Lista lis){
 					buffer[tam] = '\0';
 					r = 0;
 				}
-				lis = processaLista(lis, buffer, tam, n);
-				n = 1;
+				lis = processaLista(lis, buffer, tam, h);
+				h = 1;
 			}
 		close(pid[0]);
 		}
@@ -209,8 +225,8 @@ Lista processalinha(char * line, int n, Lista lis){
 					buffer[tam] = '\0';
 					r = 0;
 				}
-				lis = processaLista(lis, buffer, tam, n);
-				n = 1;
+				lis = processaLista(lis, buffer, tam, h);
+				h = 1;
 			}
 		}
 	}

@@ -1,3 +1,5 @@
+int indiceAnt(char* line);
+
 char* copiaLinha(char* buf, int *l);
 
 char** parteComando(char* s);

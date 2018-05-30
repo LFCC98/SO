@@ -1,5 +1,6 @@
 Marega
 $ ps
 $ ls -l
-$| wc
-Sagan
+$ ls
+SAGAN
+$2| wc

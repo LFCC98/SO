@@ -7,6 +7,26 @@
 #include <string.h>
 #include <sys/types.h>
 
+int indiceAnt(char* line){
+	int i = 0, r;
+	if((*(line + 1)) == '|')
+		return 0;
+	else{
+		i++;
+		while(line[i] >= 48 && line[i] <= 57)
+			i++;
+		char* num = malloc(i);
+		i = 1;
+		while(line[i] >= 48 && line[i] <= 57){
+			num[i - 1] = line[i];
+			i++;
+		}
+		num[i - 1] = '\0';
+		r = atoi(num); 
+	}
+	return r - 1;
+}
+
 char* copiaLinha(char* buf, int *l){
 	int i = 0, j = 0;
 
@@ -31,6 +51,11 @@ int contaPalavra(char* s){
 		if(s[i] == '$');
 		else if(s[i] == '|');
 		else if(s[i] == '$' && s[i + 1] == '|');
+		else if(s[i] == '$' && (s[i + 1] >= 48 && s[i + 1] <= 57)){
+			i++;
+			while(s[i] >= 48 && s[i] <= 57)
+				i++;
+		}
 		else if(s[i] == ' ' && s[i + 1] != ' ')
 			j++;
 		i++;
