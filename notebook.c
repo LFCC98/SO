@@ -9,11 +9,14 @@
 #include "notebook.h"
 #include "copia.h"
 
+#define MAXTAM 4000
+
 struct llista{
-	int line;
+	int num;
 	int tam;
 	char* linha;
 	struct llista *next;
+	struct llista *ant;
 };
 
 int numEspacos(char* line){
@@ -42,6 +45,12 @@ int comentario(char *line){
 	return 1;
 }
 
+int comand_pipe(char * line){
+	if(comentario(line) || (strlen(line) >= 2 &&  *(line + 1) != '|'))
+		return 0;
+	return 1;
+}
+
 void colocaPalavras(char * word[], char * buf){
 
 	int i, j;
@@ -58,12 +67,46 @@ void colocaPalavras(char * word[], char * buf){
 	}
 }
 
+void copiaAnt(char* buffer, Lista lis, int t){
+	int count = 0;
+	while(t > 0){
+		if(t >= MAXTAM)
+			memcpy(buffer + count, lis -> linha, MAXTAM);
+		else memcpy(buffer + count, lis -> linha, t);
+		t = t - MAXTAM;
+	}
+}
+
+char* pegaAnt(Lista lis){
+	char * buffer;
+	int t = 0, n;
+	if(lis == NULL || lis -> next == NULL)
+		return NULL;
+	else{
+		Lista aux = lis;
+		while(aux -> next != NULL)
+			aux = aux -> next;
+		n = aux -> num;
+		Lista anterior = aux -> ant;
+		t = strlen(aux -> linha);
+		while(anterior -> ant != NULL && anterior -> num == n){
+			t += strlen(anterior -> linha);
+			aux -> ant = anterior;
+			anterior = anterior -> ant;
+		}
+		buffer = malloc(t);
+		copiaAnt(buffer, aux, t);
+	}
+	return buffer;
+}
+
 Lista deuErro(){
 	Lista lis = malloc(sizeof(struct llista));
 	lis -> linha = NULL;
-	lis -> line = -1;
+	lis -> num = -1;
 	lis -> tam = 0;
 	lis -> next = NULL;
+	lis -> ant = NULL;
 	return lis;
 }
 
@@ -73,9 +116,10 @@ Lista processaLista(Lista lis, char* buffer, int tam, int n){
 		lis = malloc(sizeof(struct llista));
 		lis -> linha = malloc(sizeof(char) * tam + 1);
 		lis -> linha = buffer;
-		lis -> line = 0;
+		lis -> num = 0;
 		lis -> tam = tam;
 		lis -> next = NULL;
+		lis -> ant = NULL;
 	}
 	else{
 		Lista l = lis, ant;
@@ -89,11 +133,12 @@ Lista processaLista(Lista lis, char* buffer, int tam, int n){
 		l -> linha = malloc(sizeof(char) * tam + 1);
 		l -> linha = buffer;
 		if(!n)
-			l -> line = i;
+			l -> num = i;
 		else
-			l -> line = ant -> line;
+			l -> num = ant -> num;
 		l -> tam = tam;
 		l -> next = NULL;
+		l -> ant = ant;
 		ant -> next = l;
 	}
 	return lis;
@@ -102,14 +147,49 @@ Lista processaLista(Lista lis, char* buffer, int tam, int n){
 Lista processalinha(char * line, int n, Lista lis){
 
 	char **palavras;
-	int status = 0, tam, r = 1, h = 0;
-	int pid[2];
-	char * buffer = malloc(4000);
+	int status = 0, tam, r = 1;
+	int pid[2], pff[2];
+	char *ant, *buffer = malloc(MAXTAM);
 	
+	pipe(pff);
 	pipe(pid);
 
 	line[n - 1] = '\n';
-	if(!comentario(line)){
+	if(comand_pipe(line)){
+		palavras = parteComando(line);
+		ant = pegaAnt(lis);
+		write(pff[1], ant, strlen(ant) + 1);
+		if(!fork()){
+			dup2(pff[0], 0);
+			close(pff[0]);
+			close(pff[1]);
+			dup2(pid[1], 1);
+			close(pid[1]);
+			close(pid[0]);
+			status = execvp(palavras[1], &palavras[1]);
+			perror("Erro ao executar");
+			_exit(-1);
+		}
+		close(pff[1]);
+		close(pff[0]);
+		close(pid[1]);
+		wait(&status);
+		if(WEXITSTATUS(status))
+			lis = deuErro();
+		else{
+			while(r && (tam = read(pid[0], buffer, MAXTAM))){
+				if(tam < MAXTAM){
+					buffer[tam - 1] = '\n';
+					buffer[tam] = '\0';
+					r = 0;
+				}
+				lis = processaLista(lis, buffer, tam, n);
+				n = 1;
+			}
+		close(pid[0]);
+		}
+	}
+	else if(!comentario(line)){
 		palavras = parteComando(line);
 		if(!fork()){
 			dup2(pid[1], 1);
@@ -123,19 +203,20 @@ Lista processalinha(char * line, int n, Lista lis){
 		if(WEXITSTATUS(status))
 			lis = deuErro();
 		else{
-			while(r && (tam = read(pid[0], buffer, 4000))){
-				if(tam < 4000){
+			while(r && (tam = read(pid[0], buffer, MAXTAM))){
+				if(tam < MAXTAM){
 					buffer[tam - 1] = '\n';
 					buffer[tam] = '\0';
 					r = 0;
 				}
-				lis = processaLista(lis, buffer, tam, h);
+				lis = processaLista(lis, buffer, tam, n);
 				n = 1;
 			}
 		}
 	}
 	return lis;
 }
+
 int avancaLinhas(char* linhas[], int i){
 	int r = (strcmp(">>>\n", linhas[i]));
 	while(!r){
@@ -194,13 +275,13 @@ void processa(int file, char * path){
 	}
 
 	int i;
-	for(i = 0; i < n && (lis == NULL || lis -> line != -1); i++){
+	for(i = 0; i < n && (lis == NULL || lis -> num != -1); i++){
 		i = avancaLinhas(linhas, i);
 		if(i < n)
 			lis = processalinha(linhas[i], tamlinha[i], lis);
 	}
 	
-	if(lis != NULL && lis -> line != -1){
+	if(lis != NULL && lis -> num != -1){
 		close(file);
 		file = open(path, O_WRONLY | O_TRUNC);
 		escreveFile(file, linhas, tamlinha, n, lis);

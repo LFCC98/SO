@@ -1,4 +1,5 @@
 Marega
 $ ps
 $ ls -l
+$| wc
 Sagan

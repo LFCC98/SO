@@ -30,6 +30,7 @@ int contaPalavra(char* s){
 	while(s[i] != '\n' && s[i] != '\0'){
 		if(s[i] == '$');
 		else if(s[i] == '|');
+		else if(s[i] == '$' && s[i + 1] == '|');
 		else if(s[i] == ' ' && s[i + 1] != ' ')
 			j++;
 		i++;
