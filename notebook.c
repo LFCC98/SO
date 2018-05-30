@@ -19,55 +19,6 @@ struct llista{
 	struct llista *ant;
 };
 
-int numEspacos(char* line){
-
-	int conta = 0;
-	for(int i = 0; *(line + i) != '\n'; i++){
-		if(*(line + i) == ' ')
-			conta++;
-	}
-	return conta;
-}
-
-int numLinhas(char* buf){
-
-	int conta = 0;
-	for(int i = 0; *(buf + i) != '\0'; i++){
-		if(*(buf + i) == '\n')
-			conta++;
-	}
-	return conta + 1;
-}
-
-int comentario(char *line){
-	if(*(line) == '$')
-		return 0;
-	return 1;
-}
-
-int comand_pipe(char * line){
-	if(!comentario(line) && ((*(line + 1)) == '|' || ((*(line + 1)) >= 48  && (*(line + 1)) <= 57)) 
-	/*|| (*(line + 1) != '|') || (((*(line + 1) < 48 || (*(line + 1) > 57)) && (*(line + 1))  != '|'))*/)
-		return 1;
-	return 0;
-}
-
-void colocaPalavras(char * word[], char * buf){
-
-	int i, j;
-	int pal = 0;
-	char *palavra;
-	for(i = 0; buf[i] != '\n' && buf[i] != '\0'; i++){
-		for(j = i; buf[j] != ' '; j++);
-		palavra = malloc(j + 1);
-		strncpy(palavra, buf, j);
-		palavra[j - 1] = '\0';
-		word[pal] = palavra;
-		pal++;
-		i = j;
-	}
-}
-
 void copiaAnt(char* buffer, Lista lis, int t){
 	int count = 0;
 	while(t > 0){
@@ -158,8 +109,7 @@ Lista processaLista(Lista lis, char* buffer, int tam, int n){
 Lista processalinha(char * line, int n, Lista lis){
 
 	char **palavras;
-	int status = 0, tam, r = 1, indice, h = 0;
-	int pid[2], pff[2];
+	int status = 0, tam, r = 1, indice, h = 0, pid[2], pff[2];
 	char *ant, *buffer = malloc(MAXTAM);
 	
 	pipe(pff);
@@ -290,8 +240,7 @@ void processa(int file, char * path){
 		dif = l;
 	}
 
-	int i;
-	for(i = 0; i < n && (lis == NULL || lis -> num != -1); i++){
+	for(int i = 0; i < n && (lis == NULL || lis -> num != -1); i++){
 		i = avancaLinhas(linhas, i);
 		if(i < n)
 			lis = processalinha(linhas[i], tamlinha[i], lis);
@@ -304,5 +253,4 @@ void processa(int file, char * path){
 	}
 
 	close(file);
-
 }

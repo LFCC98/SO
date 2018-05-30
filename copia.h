@@ -1,3 +1,13 @@
+int numEspacos(char* line);
+
+int numLinhas(char* buf);
+
+int comentario(char *line);
+
+int comand_pipe(char * line);
+
+void colocaPalavras(char * word[], char * buf);	
+
 int indiceAnt(char* line);
 
 char* copiaLinha(char* buf, int *l);

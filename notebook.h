@@ -1,5 +1,3 @@
-#define TAM 1024
+typedef struct llista* Lista;
 
 void processa(int file, char* path);
-
-typedef struct llista* Lista;
