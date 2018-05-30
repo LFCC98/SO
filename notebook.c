@@ -116,7 +116,10 @@ Lista processalinha(char * line, int n, Lista lis){
 	pipe(pid);
 
 	line[n - 1] = '\n';
-	if(comand_pipe(line)){
+
+	if(comentario(line))
+		return lis;
+	else if(comand_pipe(line)){
 		palavras = parteComando(line);
 		indice = indiceAnt(line);
 		ant = pegaAnt(lis, indice);
@@ -139,21 +142,6 @@ Lista processalinha(char * line, int n, Lista lis){
 		close(pff[1]);
 		close(pff[0]);
 		close(pid[1]);
-		wait(&status);
-		if(WEXITSTATUS(status))
-			lis = deuErro();
-		else{
-			while(r && (tam = read(pid[0], buffer, MAXTAM))){
-				if(tam < MAXTAM){
-					buffer[tam - 1] = '\n';
-					buffer[tam] = '\0';
-					r = 0;
-				}
-				lis = processaLista(lis, buffer, tam, h);
-				h = 1;
-			}
-		close(pid[0]);
-		}
 	}
 	else if(!comentario(line)){
 		palavras = parteComando(line);
@@ -164,22 +152,22 @@ Lista processalinha(char * line, int n, Lista lis){
 			perror("Erro ao executar");
 			_exit(-1);
 		}
-		wait(&status);
-
-		if(WEXITSTATUS(status))
-			lis = deuErro();
-		else{
-			while(r && (tam = read(pid[0], buffer, MAXTAM))){
-				if(tam < MAXTAM){
-					buffer[tam - 1] = '\n';
-					buffer[tam] = '\0';
-					r = 0;
-				}
-				lis = processaLista(lis, buffer, tam, h);
-				h = 1;
-			}
-		}
 	}
+	wait(&status);
+	if(WEXITSTATUS(status))
+		lis = deuErro();
+	else{
+		while(r && (tam = read(pid[0], buffer, MAXTAM))){
+			if(tam < MAXTAM){
+				buffer[tam - 1] = '\n';
+				buffer[tam] = '\0';
+				r = 0;
+				}
+			lis = processaLista(lis, buffer, tam, h);
+			h = 1;
+			}
+		close(pid[0]);
+		}
 	return lis;
 }
 
@@ -214,7 +202,6 @@ void escreveFile(int file, char* linhas[], int tamlinha[], int n, Lista l){
 }
 
 void processa(int file, char * path){
-
 	int tam = lseek(file, 0, SEEK_END);
 	lseek(file, 0, SEEK_SET);
 
@@ -227,10 +214,8 @@ void processa(int file, char * path){
 	}
 
 	int n = numLinhas(buf);
+	int tamlinha[n], l = 0, dif = 0;
 	char *linhas[n];
-	int tamlinha[n];
-	int l = 0;
-	int dif = 0;
 	Lista lis = NULL;
 
 	for(int i = 0; i < n; i++){

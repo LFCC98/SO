@@ -3,4 +3,4 @@ $ ps
 $ ls -l
 $ ls
 SAGAN
-$3| wc
+$1| wc
