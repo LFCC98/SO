@@ -11,6 +11,12 @@
 
 #define MAXTAM 4000
 
+int sig = 0;
+
+void print(){
+	sig = 1;
+}
+
 struct llista{
 	int num;
 	int tam;
@@ -111,7 +117,7 @@ Lista processalinha(char * line, int n, Lista lis){
 	char **palavras;
 	int status = 0, tam, r = 1, indice, h = 0, pid[2], pff[2];
 	char *ant, *buffer = malloc(MAXTAM);
-	
+	pid_t p;
 	pipe(pff);
 	pipe(pid);
 
@@ -128,7 +134,8 @@ Lista processalinha(char * line, int n, Lista lis){
 			return lis;
 		}
 		write(pff[1], ant, strlen(ant) + 1);
-		if(!fork()){
+		p = fork();
+		if(!p){
 			dup2(pff[0], 0);
 			close(pff[0]);
 			close(pff[1]);
@@ -143,9 +150,10 @@ Lista processalinha(char * line, int n, Lista lis){
 		close(pff[0]);
 		close(pid[1]);
 	}
-	else if(!comentario(line)){
+	else{
 		palavras = parteComando(line);
-		if(!fork()){
+		p = fork();
+		if(!p){
 			dup2(pid[1], 1);
 			close(pid[1]);
 			status = execvp(palavras[1], &palavras[1]);
@@ -154,7 +162,9 @@ Lista processalinha(char * line, int n, Lista lis){
 		}
 	}
 	wait(&status);
-	if(WEXITSTATUS(status))
+	if(sig == 1)
+		kill(SIGKILL, p);
+	else if(WEXITSTATUS(status))
 		lis = deuErro();
 	else{
 		while(r && (tam = read(pid[0], buffer, MAXTAM))){
@@ -202,13 +212,15 @@ void escreveFile(int file, char* linhas[], int tamlinha[], int n, Lista l){
 }
 
 void processa(int file, char * path){
-	int tam = lseek(file, 0, SEEK_END);
+	int tam = lseek(file, 0, SEEK_END) + 1;
 	lseek(file, 0, SEEK_SET);
 
 	char *buf = (char*)malloc(tam);
 	int t = read(file, buf, tam);
 
-	if(t < tam){
+	buf[tam -1] = '\n';
+
+	if(t < tam - 1){
 		perror("Nao consegui ler o ficheiro corretamente");
 		exit(-1);
 	}
@@ -217,6 +229,8 @@ void processa(int file, char * path){
 	int tamlinha[n], l = 0, dif = 0;
 	char *linhas[n];
 	Lista lis = NULL;
+
+	signal(SIGINT, print);
 
 	for(int i = 0; i < n; i++){
 		char *c = copiaLinha(buf, &l);
@@ -231,11 +245,10 @@ void processa(int file, char * path){
 			lis = processalinha(linhas[i], tamlinha[i], lis);
 	}
 	
-	if(lis != NULL && lis -> num != -1){
+	if(lis != NULL && lis -> num != -1 && !sig){
 		close(file);
 		file = open(path, O_WRONLY | O_TRUNC);
 		escreveFile(file, linhas, tamlinha, n, lis);
 	}
-
 	close(file);
 }

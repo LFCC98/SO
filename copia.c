@@ -8,7 +8,6 @@
 #include <sys/types.h>
 
 int numEspacos(char* line){
-
 	int conta = 0;
 	for(int i = 0; *(line + i) != '\n'; i++){
 		if(*(line + i) == ' ')
@@ -18,7 +17,6 @@ int numEspacos(char* line){
 }
 
 int numLinhas(char* buf){
-
 	int conta = 0;
 	for(int i = 0; *(buf + i) != '\0'; i++){
 		if(*(buf + i) == '\n')
