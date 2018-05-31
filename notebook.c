@@ -25,44 +25,27 @@ struct llista{
 	struct llista *ant;
 };
 
-void copiaAnt(char* buffer, Lista lis, int t){
-	int count = 0;
-	while(t > 0){
-		if(t >= MAXTAM)
-			memcpy(buffer + count, lis -> linha, MAXTAM);
-		else memcpy(buffer + count, lis -> linha, t);
-		t = t - MAXTAM;
-	}
-}
-
 char* pegaAnt(Lista lis, int indice){
 	char * buffer;
 	int t = 0, n;
-	if(lis == NULL || lis -> next == NULL)
+	if(lis == NULL)
 		return NULL;
-	else{
-		Lista aux = lis;
-		while(aux -> next != NULL)
-			aux = aux -> next;
-		n = (aux -> num) - indice;
-		if(n < 0)
-			return NULL;
-		Lista anterior = aux -> ant;
-		if(aux -> num != n)
-			while(anterior -> ant != NULL && anterior -> num != n){
-				aux = anterior;
-				anterior = anterior -> ant;
-			}
-		t = strlen(aux -> linha);
-		while(anterior != NULL && anterior -> num == n){
-			t += strlen(anterior -> linha);
-			aux = anterior;
-			anterior = anterior -> ant;
-		}
 
-		buffer = malloc(t);
-		copiaAnt(buffer, aux, t);
+	Lista aux = lis -> next;
+	Lista anterior = lis;
+	while(aux != NULL){
+		aux = aux -> next;
+		anterior = anterior -> next;
 	}
+	n = (anterior -> num) - indice;
+	if(n < 0)
+		return NULL;
+	while(anterior -> num != n)
+		anterior = anterior -> ant;
+
+	t = strlen(anterior -> linha);
+	buffer = malloc(t);
+	strcpy(buffer, anterior -> linha);
 	return buffer;
 }
 
@@ -76,13 +59,12 @@ Lista deuErro(){
 	return lis;
 }
 
-Lista processaLista(Lista lis, char* buffer, int tam, int n){
-	int i = 1;
+Lista processaLista(Lista lis, char* buffer, int tam){
 	if(lis == NULL){
 		lis = malloc(sizeof(struct llista));
 		lis -> linha = malloc(sizeof(char) * tam + 1);
-		lis -> linha = buffer;
-		lis -> num = i;
+		strcpy(lis -> linha, buffer);
+		lis -> num = 1;
 		lis -> tam = tam;
 		lis -> next = NULL;
 		lis -> ant = NULL;
@@ -91,19 +73,14 @@ Lista processaLista(Lista lis, char* buffer, int tam, int n){
 		Lista l = lis, ant;
 		l = lis -> next;
 		ant = lis;
-		i++;
 		while(l != NULL){
-			i++;
 			ant = l;
 			l = l -> next;
 		}
 		l = malloc(sizeof(struct llista));
 		l -> linha = malloc(sizeof(char) * tam + 1);
-		l -> linha = buffer;
-		if(n == 0)
-			l -> num = i;
-		else
-			l -> num = ant -> num;
+		strcpy(l -> linha, buffer);
+		l -> num = 1;
 		l -> tam = tam;
 		l -> next = NULL;
 		l -> ant = ant;
@@ -112,15 +89,57 @@ Lista processaLista(Lista lis, char* buffer, int tam, int n){
 	return lis;
 }
 
+Lista insereNodo(Lista lis, Lista nodo){
+	if(lis == NULL){
+		nodo -> num = 1;
+		return nodo;
+	}
+	Lista aux = lis;
+
+	while(aux -> next != NULL)
+		aux = aux -> next;
+	aux -> next = nodo;
+	nodo -> ant = aux;
+	nodo -> num = aux -> num + 1;
+	return lis;
+}
+
+Lista comprimeNodo(Lista nodo){
+	if(nodo -> tam < MAXTAM)
+		return nodo;
+	int t = 0, i = 0;
+	Lista aux = nodo;
+	while(aux){
+		t += aux -> tam;
+		aux = aux -> next; 
+	}
+
+	char* buf = malloc(t + 1);
+	aux = nodo;
+	while(aux){
+		strcpy((buf + i), aux -> linha);
+		i += aux -> tam;
+		aux = aux -> next;
+	}
+	(*(buf + t)) = '\0';
+	aux = malloc(sizeof(struct llista));
+	aux -> tam = t;
+	aux -> linha = malloc(t + 1);
+	strcpy(aux -> linha, buf);
+	aux -> next = NULL;
+	aux -> ant = NULL;
+	return aux;
+}
+
 Lista processalinha(char * line, int n, Lista lis){
 
 	char **palavras;
-	int status = 0, tam, r = 1, indice, h = 0, pid[2], pff[2];
+	int status = 0, tam, r = 1, indice, pid[2], pff[2];
 	char *ant, *buffer = malloc(MAXTAM);
 	pid_t p;
 	pipe(pff);
 	pipe(pid);
-
+	Lista nodo = NULL;
 	line[n - 1] = '\n';
 
 	if(comentario(line))
@@ -164,8 +183,10 @@ Lista processalinha(char * line, int n, Lista lis){
 	wait(&status);
 	if(sig == 1)
 		kill(SIGKILL, p);
-	else if(WEXITSTATUS(status))
+	else if(WEXITSTATUS(status)){
 		lis = deuErro();
+		return lis;
+	}
 	else{
 		while(r && (tam = read(pid[0], buffer, MAXTAM))){
 			if(tam < MAXTAM){
@@ -173,10 +194,11 @@ Lista processalinha(char * line, int n, Lista lis){
 				buffer[tam] = '\0';
 				r = 0;
 				}
-			lis = processaLista(lis, buffer, tam, h);
-			h = 1;
+			nodo = processaLista(nodo, buffer, tam);
 			}
 		close(pid[0]);
+		nodo = comprimeNodo(nodo);
+		lis = insereNodo(lis, nodo);
 		}
 	return lis;
 }
