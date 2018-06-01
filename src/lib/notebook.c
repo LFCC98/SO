@@ -1,3 +1,8 @@
+/**
+@file notebook.c
+Ficheiro que faz grande parte do trabalho do sistema de processamento
+*/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -13,10 +18,16 @@
 
 int sig = 0;
 
+/**
+\brief Funçao que altera o valor da variável global sig
+*/
 void print(){
 	sig = 1;
 }
 
+/**
+\brief Estrutura que define uma lista ligada
+*/
 struct llista{
 	int num;
 	int tam;
@@ -25,6 +36,12 @@ struct llista{
 	struct llista *ant;
 };
 
+/**
+\brief Funçao que permite guardar um elemento de uma lista, mesmo se este estiver para trás
+@param lis Lista na qual queremos pegar o elemento
+@param indice Índice do elemento que queremos pegar
+@returns Uma string, que é o elemento da lista
+*/
 char* pegaAnt(Lista lis, int indice){
 	char * buffer;
 	int t = 0, n;
@@ -49,6 +66,10 @@ char* pegaAnt(Lista lis, int indice){
 	return buffer;
 }
 
+/**
+\brief Funçao que dá uma lista "resetada"
+@returns A lista mencionada
+*/
 Lista deuErro(){
 	Lista lis = malloc(sizeof(struct llista));
 	lis -> linha = NULL;
@@ -59,6 +80,13 @@ Lista deuErro(){
 	return lis;
 }
 
+/**
+\brief Funçao que processa e inicializa uma lista
+@param lis Lista a ser processada
+@param buffer String que será elemento da lista
+@param tam Inteiro correspondente ao tamanho da lista
+@returns A lista já processada
+*/
 Lista processaLista(Lista lis, char* buffer, int tam){
 	if(lis == NULL){
 		lis = malloc(sizeof(struct llista));
@@ -89,6 +117,12 @@ Lista processaLista(Lista lis, char* buffer, int tam){
 	return lis;
 }
 
+/**
+\brief Funçao que insere um nodo numa lista
+@param lis Lista que receberá o nodo
+@param nodo Nodo a ser adicionado
+@returns A lista com o nodo adicionado
+*/
 Lista insereNodo(Lista lis, Lista nodo){
 	if(lis == NULL){
 		nodo -> num = 1;
@@ -104,6 +138,11 @@ Lista insereNodo(Lista lis, Lista nodo){
 	return lis;
 }
 
+/**
+\brief Funçao que comprime um nodo caso este tenha um tamanho maior do que o máximo estabelecido
+@param nodo Nodo a ser comprimido
+@returns O nodo comprimido
+*/
 Lista comprimeNodo(Lista nodo){
 	if(nodo -> tam < MAXTAM)
 		return nodo;
@@ -131,6 +170,13 @@ Lista comprimeNodo(Lista nodo){
 	return aux;
 }
 
+/**
+\brief Funçao processa cada elemento (linha) de uma lista
+@param line String que corresponde a um elemento da lista
+@param n Int correspondente ao tamanho da linha
+@param lis Lista cujos elementos serão processados
+@returns A lista após o processamento dos elementos
+*/
 Lista processalinha(char * line, int n, Lista lis){
 
 	char **palavras;
@@ -222,6 +268,12 @@ Lista processalinha(char * line, int n, Lista lis){
 	return lis;
 }
 
+/**
+\brief Funçao que avança do início para o fim do output
+@param linhas Linhas a serem avançadas
+@param i Índice da linha de onde se começou
+@returns Linha para onde se avançou
+*/
 int avancaLinhas(char* linhas[], int i){
 	int r = (strcmp(">>>\n", linhas[i]));
 	while(!r){
@@ -234,6 +286,14 @@ int avancaLinhas(char* linhas[], int i){
 	return i;
 }
 
+/**
+\brief Funçao que escreve o ficheiro
+@param file Ficheiro a ser escrito
+@param linhas Linhas a serem escritas
+@param tamLinha Tamanho das linhas a serem escritas
+@param n Número de linhas
+@param l Lista com as linhas
+*/
 void escreveFile(int file, char* linhas[], int tamlinha[], int n, Lista l){
 	int i = 0;
 	char * m = ">>>";
@@ -252,6 +312,11 @@ void escreveFile(int file, char* linhas[], int tamlinha[], int n, Lista l){
 	}
 }
 
+/**
+\brief Funçao que processa o ficheiro
+@param file Ficheiro a ser processado
+@param path String com o caminho para o ficheiro
+*/
 void processa(int file, char * path){
 	int tam = lseek(file, 0, SEEK_END) + 1;
 	lseek(file, 0, SEEK_SET);
