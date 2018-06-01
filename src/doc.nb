@@ -1,0 +1,2 @@
+Comando que não vai receber input
+&3| sort

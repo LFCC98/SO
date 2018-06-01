@@ -1,0 +1,6 @@
+Comando para listar ficheiros
+$ ls
+Agora vamos ordena-los
+$| sort
+E ficar com o primeiro elemento
+$| head -1

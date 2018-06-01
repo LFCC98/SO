@@ -2,34 +2,41 @@ Marega
 $ ps
 >>>
   PID TTY          TIME CMD
- 2195 pts/7    00:00:00 bash
- 4880 pts/7    00:00:00 notebook
- 4881 pts/7    00:00:00 ps
+ 1818 pts/17   00:00:00 bash
+ 3367 pts/17   00:00:00 notebook
+ 3368 pts/17   00:00:00 ps
 <<<
 $ ls -l
 >>>
-total 84
--rw-rw-r-- 1 luis luis     0 Jun  1 17:56 erros.txt
--rw-rw-r-- 1 luis luis 44351 Jun  1 17:56 ex.nb
-drwxrwxr-x 2 luis luis  4096 Jun  1 17:31 lib
--rw-rw-r-- 1 luis luis   795 Jun  1 17:53 main.c
+total 60
+-rw-rw-r-- 1 luis luis    43 Jun  1 22:30 doc.nb
+-rw-rw-r-- 1 luis luis    58 Jun  1 22:24 erro.nb
+-rw-rw-r-- 1 luis luis     0 Jun  1 23:18 erros.txt
+-rw-rw-r-- 1 luis luis   783 Jun  1 22:45 ex.nb
+-rw-rw-r-- 1 luis luis    39 Jun  1 22:33 file.nb
+drwxrwxr-x 2 luis luis  4096 Jun  1 22:20 lib
+-rw-rw-r-- 1 luis luis   989 Jun  1 18:06 main.c
 -rw-rw-r-- 1 luis luis   557 Jun  1 15:39 Makefile
--rwxrwxr-x 1 luis luis 22660 Jun  1 17:53 notebook
-drwxrwxr-x 3 luis luis  4096 Jun  1 17:53 obj
+-rwxrwxr-x 1 luis luis 22740 Jun  1 23:09 notebook
+drwxrwxr-x 3 luis luis  4096 Jun  1 23:09 obj
+-rw-rw-r-- 1 luis luis   108 Jun  1 23:17 pro.nb
 <<<
 $ ls
 >>>
+doc.nb
+erro.nb
 erros.txt
 ex.nb
+file.nb
 lib
 main.c
 Makefile
 notebook
 obj
+pro.nb
 <<<
 SAGAN
 $2| wc
 >>>
-      9      65     354
+     12     101     550
 <<<
-

@@ -203,7 +203,7 @@ Lista processalinha(char * line, int n, Lista lis){
 			lis = deuErro();
 			return lis;
 		}
-		write(pff[1], ant, strlen(ant) + 1);
+		write(pff[1], ant + 1, strlen(ant + 1));
 		p = fork();
 		if(p == -1){
 			perror("Não foi possível criar o processo");

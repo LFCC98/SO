@@ -1,0 +1,3 @@
+$ ls
+Vou colocar um comando que não existe
+$ asdfghjklç
