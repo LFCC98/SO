@@ -155,12 +155,14 @@ Lista processalinha(char * line, int n, Lista lis){
 		write(pff[1], ant, strlen(ant) + 1);
 		p = fork();
 		if(!p){
+			char c = '\n';
 			dup2(pff[0], 0);
 			close(pff[0]);
 			close(pff[1]);
 			dup2(pid[1], 1);
 			close(pid[1]);
 			close(pid[0]);
+			write(1, &c, 1);
 			status = execvp(palavras[1], &palavras[1]);
 			perror("Erro ao executar");
 			_exit(-1);
@@ -173,8 +175,10 @@ Lista processalinha(char * line, int n, Lista lis){
 		palavras = parteComando(line);
 		p = fork();
 		if(!p){
+			char c = '\n';
 			dup2(pid[1], 1);
 			close(pid[1]);
+			write(1, &c, 1);
 			status = execvp(palavras[1], &palavras[1]);
 			perror("Erro ao executar");
 			_exit(-1);
@@ -217,14 +221,14 @@ int avancaLinhas(char* linhas[], int i){
 
 void escreveFile(int file, char* linhas[], int tamlinha[], int n, Lista l){
 	int i = 0;
-	char * m = ">>>\n";
+	char * m = ">>>";
 	char * x = "<<<\n";
 	
 	while(i < n){
 		i = avancaLinhas(linhas, i);
 		write(file, linhas[i], tamlinha[i]);
 		if(!comentario(linhas[i])){
-			write(file, m, 4);
+			write(file, m, 3);
 			write(file, l -> linha, l -> tam);
 			write(file, x, 4);
 			l = l -> next;
