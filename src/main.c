@@ -14,6 +14,7 @@ int wrongFile(char a[]){
 int main(int argc, char * const argv[]){
 
 	int file;
+	int stderr;
 
 	if(argc < 2){
 		perror("Faltam argumentos\n");
@@ -23,6 +24,15 @@ int main(int argc, char * const argv[]){
 	if(wrongFile(argv[1])){
 		perror("Não é possível ler esse tipo de ficheiros\n");
 		exit(-1);
+	}
+
+	stderr = open("erros.txt", O_CREAT | O_TRUNC | O_WRONLY, 0666);
+	if(stderr == -1){
+		perror("Não foi possível abir o ficheiro\n");
+	}
+	else{
+		dup2(stderr, 2);
+		close(stderr);
 	}
 
 	file = open(argv[1], O_RDWR);

@@ -1,0 +1,35 @@
+Marega
+$ ps
+>>>
+  PID TTY          TIME CMD
+ 2195 pts/7    00:00:00 bash
+ 4880 pts/7    00:00:00 notebook
+ 4881 pts/7    00:00:00 ps
+<<<
+$ ls -l
+>>>
+total 84
+-rw-rw-r-- 1 luis luis     0 Jun  1 17:56 erros.txt
+-rw-rw-r-- 1 luis luis 44351 Jun  1 17:56 ex.nb
+drwxrwxr-x 2 luis luis  4096 Jun  1 17:31 lib
+-rw-rw-r-- 1 luis luis   795 Jun  1 17:53 main.c
+-rw-rw-r-- 1 luis luis   557 Jun  1 15:39 Makefile
+-rwxrwxr-x 1 luis luis 22660 Jun  1 17:53 notebook
+drwxrwxr-x 3 luis luis  4096 Jun  1 17:53 obj
+<<<
+$ ls
+>>>
+erros.txt
+ex.nb
+lib
+main.c
+Makefile
+notebook
+obj
+<<<
+SAGAN
+$2| wc
+>>>
+      9      65     354
+<<<
+
