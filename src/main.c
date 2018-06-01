@@ -1,3 +1,7 @@
+/**
+@file main.c
+Ficheiro com a função principal
+*/
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -5,6 +9,11 @@
 #include <string.h>
 #include "notebook.h"
 
+/**
+\brief Função que testa se uma string acaba em ".nb"
+@param a String a verificar
+@returns 0 para falso, caso contrário verdadeiro
+*/
 int wrongFile(char a[]){
 	int l = strlen(a);
 	int pos = l - 3;
