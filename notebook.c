@@ -137,8 +137,13 @@ Lista processalinha(char * line, int n, Lista lis){
 	int status = 0, tam, r = 1, indice, pid[2], pff[2];
 	char *ant, *buffer = malloc(MAXTAM);
 	pid_t p;
-	pipe(pff);
-	pipe(pid);
+	int x = pipe(pff);
+	int y = pipe(pid);
+	if(x == -1 || y == -1){
+		perror("Não deu para criar o pipe");
+		lis = deuErro();
+		return lis;
+	}
 	Lista nodo = NULL;
 	line[n - 1] = '\n';
 
@@ -154,6 +159,11 @@ Lista processalinha(char * line, int n, Lista lis){
 		}
 		write(pff[1], ant, strlen(ant) + 1);
 		p = fork();
+		if(p == -1){
+			perror("Não foi possível criar o processo");
+			lis = deuErro();
+			return lis;
+		}
 		if(!p){
 			char c = '\n';
 			dup2(pff[0], 0);
@@ -174,6 +184,11 @@ Lista processalinha(char * line, int n, Lista lis){
 	else{
 		palavras = parteComando(line);
 		p = fork();
+		if(p == -1){
+			perror("Não foi possível criar o processo");
+			lis = deuErro();
+			return lis;
+		}
 		if(!p){
 			char c = '\n';
 			dup2(pid[1], 1);
